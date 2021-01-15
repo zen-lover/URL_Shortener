@@ -1,7 +1,7 @@
 const config = require('config');
-const connectDB = require('./config/db');
+const { connectDB, client } = require('./config/db');
 const mongoose = require('mongoose');
-const users = require('./routes/users');
+const DeviceDetector = require("device-detector-js");
 const express = require('express');
 const app = express();
 
@@ -17,15 +17,18 @@ connectDB();
 app.use(express.json());
 
 // Define Routes
-app.use('/', require('./routes/index'));
-app.use('/api/url', require('./routes/url'));
-
-
-app.use(express.json());
-app.use('/api/users', users);
 app.get('/', (req, res) => {
-    res.send('salam');
+    const deviceDetector = new DeviceDetector();
+    const userAgent = req.get('user-agent');
+    const device = deviceDetector.parse(userAgent);
+    const browser = device.client.name;
+    const type = device.device.type;
+    res.send(type);
 });
+app.use('/r', require('./routes/index'));
+app.use('/api/url', require('./routes/url'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/report', require('./routes/report'));
 
 
 
