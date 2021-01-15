@@ -1,0 +1,5 @@
+{
+    "jwtPrivateKey": "",
+    "mongoURI": "mongodb://localhost/URL-Shortener",
+    "baseUrl": "http://localhost:5000"
+}
