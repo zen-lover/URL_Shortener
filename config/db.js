@@ -6,7 +6,7 @@ const redis = require('redis');
 const config = require('config');
 const db = config.get('mongoURI');
 
-const connectDB = async () => {
+const connectDb = async () => {
   try {
     await mongoose.connect(db, {
       useNewUrlParser: true
@@ -42,5 +42,5 @@ client.on('connect', function(){
 
 
 
-module.exports.connectDB = connectDB;
+module.exports.connectDb = connectDb;
 module.exports.client = client;
