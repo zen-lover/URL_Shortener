@@ -1,64 +1,41 @@
 const express = require('express');
-const router = express.Router();
 const validUrl = require('valid-url');
 const shortid = require('shortid');
-const config = require('config');
+const moment = require('moment');
+
 const { client } = require('../config/db');
 const auth = require('../middleware/auth');
-
-
 const Url = require('../models/url');
+const errors = require('../config/errors');
 
+const router = express.Router();
 
-
-// @route     POST /api/url/shorten
-// @desc      Create short URL
 router.post('/shorten', auth, async (req, res) => {
 
   const { longUrl } = req.body;
-  // const baseUrl = config.get('baseUrl');
-
-//   // Check base url
-//   if (!validUrl.isUri(baseUrl)) {
-//     return res.status(401).json('Invalid base url');
-//   }
-
-  // Create url code
   const urlCode = shortid.generate();
+  const creatorId = req.user._id
 
-
-
-  // Check long url
   if (validUrl.isUri(longUrl)) {
-
     try {
       let url = await Url.findOne({ urlCode: urlCode });
-
       if (url) {
         res.json(url);
       } else {
-        // const shortUrl = baseUrl + '/' + urlCode;
-
         url = new Url({
-          creatorId: req.user._id,
-          urlCode: urlCode,
-          date: new Date()
+          creatorId,
+          urlCode,
+          createdAt: moment()
         });
-
         await url.save();
-
         res.json(url);
       }
-
-      // for redis database
       client.set(urlCode, longUrl);
-
     } catch (err) {
-      console.error(err);
-      res.status(500).json('Server error');
+      res.status(406).json(errors.ERROR_IN_CREATING_SHORT_URL);
     }
   } else {
-    res.status(401).json('Invalid long url');
+    res.status(406).json(errors.INVALID_LONG_URL);
   }
 });
 
